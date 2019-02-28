@@ -1,6 +1,7 @@
 package prv.saevel.scala.trainings.generics.higher.kinded.types
 
-import prv.saevel.scala.trainings.{ContactData, User}
+import prv.saevel.scala.trainings.User
+import prv.saevel.scala.trainings.users.{ContactData, User}
 
 import scala.concurrent.Future
 import scala.util.Try
