@@ -1,6 +1,5 @@
 package prv.saevel.scala.trainings.generics.higher.kinded.types
 
-import prv.saevel.scala.trainings.User
 import prv.saevel.scala.trainings.users.{ContactData, User}
 
 import scala.concurrent.Future
@@ -39,7 +38,8 @@ class Processor {
   def hasUniqueId(user: User): User = user
 
   def hasPositiveAge(user: User): User = user.personalData.age match {
-    case None | Some(x) if(x > 0) => user
+    case None => user
+    case  Some(x) if(x > 0) => user
     case Some(age) => throw NegativeAgeException(age)
   }
 }

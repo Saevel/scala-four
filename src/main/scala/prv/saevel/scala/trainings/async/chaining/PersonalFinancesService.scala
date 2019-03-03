@@ -9,11 +9,14 @@ class PersonalFinancesService(accountRepository: AccountRepository,
                              (implicit ex: ExecutionContext) {
 
   def checkBalanceForUser(userId: Long, accuracy: Double): Future[Seq[AccountBalanceError]] =
-    accountRepository.findAccountsByUserId(userId).flatMap(accounts =>
-      Future.sequence(accounts.map(toIdAndBalances))
-        .map(_.filter(byBalanceEquality(accuracy)))
-        .map(_.map(toAccountBalanceError))
-    )
+    accountRepository
+      .findAccountsByUserId(userId)
+      .flatMap(accounts =>
+        Future
+          .sequence(accounts.map(toIdAndBalances))
+          .map(x => x.filter(byBalanceInequality(accuracy)))
+          .map(x => x.map(toAccountBalanceError))
+      )
 
   def transactionsBalance(incoming: Seq[Transaction], outgoing: Seq[Transaction]): Double =
     incoming.map(_.amount).fold(0.0)(_ + _) - outgoing.map(_.amount).fold(0.0)(_ + _)
@@ -22,8 +25,8 @@ class PersonalFinancesService(accountRepository: AccountRepository,
     case (id, balance, transactionsBalance) => AccountBalanceError(id, balance, transactionsBalance)
   }
 
-  private def byBalanceEquality(accuracy: Double)(data: (Long, Double, Double)): Boolean = data match {
-    case (_, balance, transactionsBalance) => (Math.abs(balance - transactionsBalance) <= accuracy)
+  private def byBalanceInequality(accuracy: Double)(data: (Long, Double, Double)): Boolean = data match {
+    case (_, balance, transactionsBalance) => (Math.abs(balance - transactionsBalance) >= accuracy)
   }
 
   private def toIdAndBalances(account: Account): Future[(Long, Double, Double)] =

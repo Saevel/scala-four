@@ -10,10 +10,10 @@ object ResponseProcessor {
       Await.result(future.recover {
         case ConflictException(message) => (422, message)
         case BadRequestException(message) => (400, message)
-        case other => (500, "Internal Server Error")
+        case _ => (500, "Internal Server Error")
       }, timeout)
     } catch {
       case e: TimeoutException => (503, e.getMessage)
-      case other => (500, "Internal Server Error")
+      case _ => (500, "Internal Server Error")
     }
 }
